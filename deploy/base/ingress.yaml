@@ -43,4 +43,4 @@ spec:
               service:
                 name: web-service
                 port:
-                  number: 9898
+                  number: 3000

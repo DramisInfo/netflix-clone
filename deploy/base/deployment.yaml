@@ -17,9 +17,9 @@ spec:
     spec:
       containers:
         - name: web-server
-          image: stefanprodan/podinfo
+          image: ghcr.io/dramisinfo/netflix-clone:main
           ports:
-            - containerPort: 9898
+            - containerPort: 3000
           resources:
             limits:
               cpu: 150m
