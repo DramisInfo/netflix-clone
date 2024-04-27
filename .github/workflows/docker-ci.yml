@@ -20,4 +20,5 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./src
+          push: true
           tags: dramisinfo/netflix-clone-web:latest
