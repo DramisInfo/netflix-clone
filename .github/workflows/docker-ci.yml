@@ -13,7 +13,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build the Docker image
-        run: docker build src --file src/Dockerfile --tag registry.dev.dramisinfo.com/netflix-clone/netflix-clone-web:$(date +%s)
+        run: |
+          IMAGE_TAG=$(date +%s)
+          docker build src --file src/Dockerfile --tag registry.dev.dramisinfo.com/netflix-clone/netflix-clone-web:$IMAGE_TAG
 
       - name: Push the Docker image to Harbor
-        run: docker push registry.dev.dramisinfo.com/netflix-clone/netflix-clone-web:$(date +%s)
+        run: docker push registry.dev.dramisinfo.com/netflix-clone/netflix-clone-web:$IMAGE_TAG
