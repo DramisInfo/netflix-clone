@@ -29,4 +29,3 @@ spec:
               memory: 64Mi
       imagePullSecrets:
         - name: ghcr
-          namespace: default
