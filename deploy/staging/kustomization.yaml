@@ -13,4 +13,4 @@ patchesStrategicMerge:
       name: web-deployment
       namespace: netflix-clone
     spec:
-      replicas: 3
+      replicas: 1
