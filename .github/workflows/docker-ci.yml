@@ -17,7 +17,6 @@ env:
   IMAGE_NAME: netflix-clone-web
 
 jobs:
-
   docker:
     name: Docker Build and Push
     runs-on: self-hosted
@@ -39,8 +38,8 @@ jobs:
           fi
           echo BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') >> $GITHUB_OUTPUT
           echo BUILD_ID=${BUILD_ID} >> $GITHUB_OUTPUT
-          echo LATEST_ID=${LATEST_ID} >> $GITHUB_OUTPUT 
-          
+          echo LATEST_ID=${LATEST_ID} >> $GITHUB_OUTPUT
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
@@ -58,10 +57,11 @@ jobs:
         id: docker_build
         uses: docker/build-push-action@v4
         with:
+          context: ./src
           push: true
           tags: |
             ${{ env.IMAGE_NAME }}:${{ steps.prep.outputs.BUILD_ID }}
-            ${{ env.IMAGE_NAME }}:${{ steps.prep.outputs.LATEST_ID }}            
+            ${{ env.IMAGE_NAME }}:${{ steps.prep.outputs.LATEST_ID }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
@@ -106,7 +106,7 @@ jobs:
   #       run: |
   #         sed -i 's|image:.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}|' ./deploy/base/deployment.yaml
   #         cat ./deploy/base/deployment.yaml
-      
+
   #     - name: Commit updated manifest
   #       uses: actions/github-script@v4
   #       with:
