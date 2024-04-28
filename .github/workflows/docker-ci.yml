@@ -24,22 +24,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Prepare
-        id: prep
-        run: |
-          BRANCH=${GITHUB_REF##*/}
-          TS=$(date +%s)
-          REVISION=${GITHUB_SHA::8}
-          BUILD_ID="${BRANCH}-${REVISION}-${TS}"
-          LATEST_ID=canary
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
-            BUILD_ID=${GITHUB_REF/refs\/tags\//}
-            LATEST_ID=latest
-          fi
-          echo BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') >> $GITHUB_OUTPUT
-          echo BUILD_ID=${BUILD_ID} >> $GITHUB_OUTPUT
-          echo LATEST_ID=${LATEST_ID} >> $GITHUB_OUTPUT
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
@@ -94,30 +78,15 @@ jobs:
   # #         push: ${{ github.event_name != 'pull_request' }}
   # #         tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
-  # gitops:
-  #   name: Update GitOps manifest
-  #   runs-on: self-hosted
-  #   needs: checkout
-  #   steps:
-  #     - name: Update docker tag
-  #       run: |
-  #         sed -i 's|image:.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}|' ./deploy/base/deployment.yaml
-  #         cat ./deploy/base/deployment.yaml
+  gitops:
+    name: Update GitOps manifest
+    runs-on: self-hosted
+    needs: docker
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-  #     - name: Commit updated manifest
-  #       uses: actions/github-script@v4
-  #       with:
-  #         github-token: ${{ secrets.GITHUB_TOKEN }}
-  #         script: |
-  #           const fs = require('fs');
-  #           const path = './deploy/base/deployment.yaml';
-  #           const content = fs.readFileSync(path, 'utf8');
-  #           const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
-  #           octokit.repos.createOrUpdateFileContents({
-  #             owner: context.repo.owner,
-  #             repo: context.repo.repo,
-  #             path: path,
-  #             message: 'Update deployment.yaml',
-  #             content: Buffer.from(content).toString('base64'),
-  #             sha: context.sha
-  #           });
+      - name: Update docker tag
+        run: |
+          sed -i 's|image:.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}|' ./deploy/base/deployment.yaml
+          cat ./deploy/base/deployment.yaml
