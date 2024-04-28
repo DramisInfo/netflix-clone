@@ -55,7 +55,7 @@ jobs:
     steps:
       - name: Update docker tag
         run: |
-          sed -i 's|image: registry.dev.dramisinfo.com/netflix-clone/netflix-clone-web:.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}|' ./deploy/base/deployment.yaml
+          sed -i 's|image:.*|image: registry.dev.dramisinfo.com/netflix-clone/netflix-clone-web:31caa55a5873f619aa49f43f3a7d8ec3a2e4910f|' ./deploy/base/deployment.yaml
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
           git add ./deploy/base/deployment.yaml
