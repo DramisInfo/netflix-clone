@@ -57,8 +57,21 @@ jobs:
         run: |
           sed -i 's|image:.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}|' ./deploy/base/deployment.yaml
           cat ./deploy/base/deployment.yaml
-          git config --global user.email "actions@github.com"
-          git config --global user.name "GitHub Actions"
-          git add ./deploy/base/deployment.yaml
-          git commit -m "Update docker tag"
-          git push
+      
+      - name: Commit updated manifest
+        uses: actions/github-script@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = './deploy/base/deployment.yaml';
+            const content = fs.readFileSync(path, 'utf8');
+            const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
+            octokit.repos.createOrUpdateFileContents({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              path: path,
+              message: 'Update deployment.yaml',
+              content: Buffer.from(content).toString('base64'),
+              sha: context.sha
+            });
