@@ -17,61 +17,110 @@ env:
   IMAGE_NAME: netflix-clone-web
 
 jobs:
-  checkout:
-    name: Checkout code
+
+  docker:
+    name: Docker Build and Push
     runs-on: self-hosted
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-  # docker:
-  #   name: Docker Build and Push
+      - name: Prepare
+        id: prep
+        run: |
+          BRANCH=${GITHUB_REF##*/}
+          TS=$(date +%s)
+          REVISION=${GITHUB_SHA::8}
+          BUILD_ID="${BRANCH}-${REVISION}-${TS}"
+          LATEST_ID=canary
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            BUILD_ID=${GITHUB_REF/refs\/tags\//}
+            LATEST_ID=latest
+          fi
+          echo BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') >> $GITHUB_OUTPUT
+          echo BUILD_ID=${BUILD_ID} >> $GITHUB_OUTPUT
+          echo LATEST_ID=${LATEST_ID} >> $GITHUB_OUTPUT 
+          
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.HARBOR_USERNAME }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
+
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ steps.prep.outputs.BUILD_ID }}
+            ${{ env.IMAGE_NAME }}:${{ steps.prep.outputs.LATEST_ID }}            
+
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
+
+  # checkout:
+  #   name: Checkout code
   #   runs-on: self-hosted
   #   steps:
-  #     - name: Set up QEMU
-  #       uses: docker/setup-qemu-action@v3
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
 
-  #     - name: Set up Docker Buildx
-  #       uses: docker/setup-buildx-action@v3
+  # # docker:
+  # #   name: Docker Build and Push
+  # #   runs-on: self-hosted
+  # #   steps:
+  # #     - name: Set up QEMU
+  # #       uses: docker/setup-qemu-action@v3
 
-  #     - name: Log in to the Container registry
-  #       uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
-  #       with:
-  #         registry: ${{ env.REGISTRY }}
-  #         username: ${{ secrets.HARBOR_USERNAME }}
-  #         password: ${{ secrets.HARBOR_PASSWORD }}
+  # #     - name: Set up Docker Buildx
+  # #       uses: docker/setup-buildx-action@v3
 
-  #     - name: Build and push Docker image
-  #       uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
-  #       with:
-  #         context: ./src
-  #         push: ${{ github.event_name != 'pull_request' }}
-  #         tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+  # #     - name: Log in to the Container registry
+  # #       uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+  # #       with:
+  # #         registry: ${{ env.REGISTRY }}
+  # #         username: ${{ secrets.HARBOR_USERNAME }}
+  # #         password: ${{ secrets.HARBOR_PASSWORD }}
 
-  gitops:
-    name: Update GitOps manifest
-    runs-on: self-hosted
-    needs: checkout
-    steps:
-      - name: Update docker tag
-        run: |
-          sed -i 's|image:.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}|' ./deploy/base/deployment.yaml
-          cat ./deploy/base/deployment.yaml
+  # #     - name: Build and push Docker image
+  # #       uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+  # #       with:
+  # #         context: ./src
+  # #         push: ${{ github.event_name != 'pull_request' }}
+  # #         tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+  # gitops:
+  #   name: Update GitOps manifest
+  #   runs-on: self-hosted
+  #   needs: checkout
+  #   steps:
+  #     - name: Update docker tag
+  #       run: |
+  #         sed -i 's|image:.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}|' ./deploy/base/deployment.yaml
+  #         cat ./deploy/base/deployment.yaml
       
-      - name: Commit updated manifest
-        uses: actions/github-script@v4
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const fs = require('fs');
-            const path = './deploy/base/deployment.yaml';
-            const content = fs.readFileSync(path, 'utf8');
-            const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
-            octokit.repos.createOrUpdateFileContents({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              path: path,
-              message: 'Update deployment.yaml',
-              content: Buffer.from(content).toString('base64'),
-              sha: context.sha
-            });
+  #     - name: Commit updated manifest
+  #       uses: actions/github-script@v4
+  #       with:
+  #         github-token: ${{ secrets.GITHUB_TOKEN }}
+  #         script: |
+  #           const fs = require('fs');
+  #           const path = './deploy/base/deployment.yaml';
+  #           const content = fs.readFileSync(path, 'utf8');
+  #           const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
+  #           octokit.repos.createOrUpdateFileContents({
+  #             owner: context.repo.owner,
+  #             repo: context.repo.repo,
+  #             path: path,
+  #             message: 'Update deployment.yaml',
+  #             content: Buffer.from(content).toString('base64'),
+  #             sha: context.sha
+  #           });
