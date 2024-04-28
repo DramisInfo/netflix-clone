@@ -18,6 +18,7 @@ env:
 
 jobs:
   docker:
+    name: Docker Build and Push
     runs-on: self-hosted
     steps:
       - name: Checkout
@@ -42,3 +43,9 @@ jobs:
           context: ./src
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+  gitops:
+    name: Update GitOps manifest
+    runs-on: self-hosted
+    steps:
+      - name: Update docker tag
+      
