@@ -57,8 +57,8 @@ jobs:
         run: |
           sed -i 's|image:.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}|' ./deploy/base/deployment.yaml
           cat ./deploy/base/deployment.yaml
-          # git config --global user.email "actions@github.com"
-          # git config --global user.name "GitHub Actions"
-          # git add ./deploy/base/deployment.yaml
-          # git commit -m "Update docker tag"
-          # git push
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add ./deploy/base/deployment.yaml
+          git commit -m "Update docker tag"
+          git push
