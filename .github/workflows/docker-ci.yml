@@ -60,8 +60,8 @@ jobs:
           context: ./srcpy
           push: true
           tags: |
-            ${{ env.IMAGE_NAME }}:${{ steps.prep.outputs.BUILD_ID }}
-            ${{ env.IMAGE_NAME }}:${{ steps.prep.outputs.LATEST_ID }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.prep.outputs.BUILD_ID }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}::${{ steps.prep.outputs.LATEST_ID }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
