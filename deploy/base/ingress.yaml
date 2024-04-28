@@ -9,8 +9,8 @@ spec:
     app: sample-web
   ports:
     - protocol: TCP
-      port: 9898
-      targetPort: 9898
+      port: 3000
+      targetPort: 3000
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
