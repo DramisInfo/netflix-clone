@@ -46,6 +46,7 @@ jobs:
   gitops:
     name: Update GitOps manifest
     runs-on: self-hosted
+    needs: docker
     steps:
       - name: Update docker tag
         run: |
