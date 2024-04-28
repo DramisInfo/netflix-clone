@@ -7,7 +7,7 @@ on:
     branches: ["main"]
 
 env:
-  REGISTRY: ghcr.io
+  REGISTRY: registry.dev.dramisinfo.com/netflix-clone
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
@@ -27,8 +27,8 @@ jobs:
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
         with:
           registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.HARBOR_USERNAME }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
           
       - name: Extract metadata (tags, labels) for Docker
         id: meta
