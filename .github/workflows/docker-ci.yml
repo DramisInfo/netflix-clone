@@ -3,12 +3,12 @@ name: Docker Image CI
 on:
   push:
     branches: ["main"]
-    paths: 
+    paths:
       - src/**
       - .github/**
   pull_request:
     branches: ["main"]
-    paths: 
+    paths:
       - src/**
       - .github/**
 
@@ -48,4 +48,10 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Update docker tag
-      
+        run: |
+          sed -i 's|image: registry.dev.dramisinfo.com/netflix-clone/netflix-clone-web:.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}|' ./deploy/base/deployment.yaml
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add ./deploy/base/deployment.yaml
+          git commit -m "Update docker tag"
+          git push
