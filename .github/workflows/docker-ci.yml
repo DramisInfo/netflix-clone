@@ -7,7 +7,7 @@ on:
     branches: ["main"]
 
 env:
-  REGISTRY: registry.dev.dramisinfo.com/netflix-clone
+  REGISTRY: registry.dev.dramisinfo.com
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
