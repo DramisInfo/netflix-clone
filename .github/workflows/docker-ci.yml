@@ -43,6 +43,9 @@ jobs:
           context: ./src
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          cache-from: type=registry,ref=user/app:buildcache
+          cache-to: type=registry,ref=user/app:buildcache,mode=max
+
   gitops:
     name: Update GitOps manifest
     runs-on: self-hosted
