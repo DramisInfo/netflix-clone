@@ -27,5 +27,5 @@ spec:
   mongoDBSecurity:
     mongoDBAdminUser: admin
     secretRef:
-      name: mongodb-secret
+      name: staging-mongodb-secret
       key: password
