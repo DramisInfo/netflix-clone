@@ -1,3 +1,13 @@
+#create secrets for mongodb
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mongodb-secret
+  namespace: netflix-clone
+type: Opaque
+stringData:
+  password: admin123
+---
 apiVersion: opstreelabs.in/v1alpha1
 kind: MongoDB
 metadata:
