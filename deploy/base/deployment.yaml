@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: web-server
-          image: registry.dev.dramisinfo.com/netflix-clone/netflix-clone-web:3bb65be85bce8d7ed4507a496485145a1d822516
+          image: registry.dev.dramisinfo.com/netflix-clone/netflix-clone-web:45d43f0a5fcf466d24e2d89644162d5adcd5f1ab
           ports:
             - containerPort: 3000
           resources:
