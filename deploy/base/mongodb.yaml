@@ -5,7 +5,7 @@ metadata:
   namespace: netflix-clone
 spec:
   kubernetesConfig:
-    image: 'quay.io/opstree/mongo:v5.0.6'
+    image: "quay.io/opstree/mongo:v5.0.6"
     imagePullPolicy: IfNotPresent
     securityContext:
       fsGroup: 1001
@@ -13,7 +13,7 @@ spec:
     accessModes:
       - ReadWriteOnce
     storageSize: 1Gi
-    storageClass: gp2
+    storageClass: local-path
   mongoDBSecurity:
     mongoDBAdminUser: admin
     secretRef:
